@@ -121,7 +121,7 @@ impl Huff16 {
     /// Build a Huff16 tree from the bitstream.
     ///
     /// `alloc_size` is the byte-size field from the SMK header for this tree.
-    /// The C code uses `(alloc_size - 12) / 4` as the expected entry count.
+    /// The C code uses `(alloc_size - 12) / 4` as the maximum entry count.
     pub fn build(bs: &mut BitStream, alloc_size: u32) -> Result<Self> {
         let h;
 
@@ -151,12 +151,6 @@ impl Huff16 {
 
             let mut h = h;
             h.build_rec(bs, &low8, &hi8, limit)?;
-
-            if h.tree.len() != limit {
-                return Err(SmkError::TreeBuildFailed(
-                    "huff16 tree size does not match expected",
-                ));
-            }
 
             // Trees are terminated by a false bit.
             if bs.read_bit()? {
